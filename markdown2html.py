@@ -4,40 +4,32 @@ A script that codes markdown to HTML
 '''
 import sys
 import os
-import re
+import markdown
 
-if __name__ == '__main__':
+# Check the number of arguments
+if len(sys.argv) < 3:
+    print("Usage: ./markdown2html.py <input_file> <output_file>", file=sys.stderr)
+    sys.exit(1)
 
-    # Test that the number of arguments passed is 2
-    if len(sys.argv[1:]) != 2:
-        print('Usage: ./markdown2html.py README.md README.html',
-              file=sys.stderr)
-        sys.exit(1)
+# Get the input and output file names from the command line arguments
+input_file = sys.argv[1]
+output_file = sys.argv[2]
 
-    # Store the arguments into variables
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+# Check if the input file exists
+if not os.path.isfile(input_file):
+    print(f"Missing {input_file}", file=sys.stderr)
+    sys.exit(1)
 
-    # Checks that the markdown file exists and is a file
-    if not (os.path.exists(input_file) and os.path.isfile(input_file)):
-        print(f'Missing {input_file}', file=sys.stderr)
-        sys.exit(1)
+# Read the contents of the Markdown file
+with open(input_file, 'r') as f:
+    markdown_content = f.read()
 
-    with open(input_file, encoding='utf-8') as file_1:
-        html_content = []
-        md_content = [line[:-1] for line in file_1.readlines()]
-        for line in md_content:
-            heading = re.split(r'#{1,6} ', line)
-            if len(heading) > 1:
-                # Compute the number of the # present to
-                # determine heading level
-                h_level = len(line[:line.find(heading[1])-1])
-                # Append the html equivalent of the heading
-                html_content.append(
-                    f'<h{h_level}>{heading[1]}</h{h_level}>\n'
-                )
-            else:
-                html_content.append(line)
+# Convert Markdown to HTML
+html_content = markdown.markdown(markdown_content)
 
-    with open(output_file, 'w', encoding='utf-8') as file_2:
-        file_2.writelines(html_content)
+# Write the HTML content to the output file
+with open(output_file, 'w') as f:
+    f.write(html_content)
+
+# Exit with a success status code
+sys.exit(0)
