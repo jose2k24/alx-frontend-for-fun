@@ -1,12 +1,8 @@
-/* Nested tags */
-$body-margin: 0px;
-$body-padding: 0px;
-$p-margin: 10px;
-
+/* using nested selectors */
 body {
-    margin: $body-margin;
-    padding: $body-padding;
+    margin: 0px;
+    padding: 0px;
     p {
-        margin: $p-margin;
+        margin: 10px;
     }
 }

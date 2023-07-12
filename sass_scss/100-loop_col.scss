@@ -1,19 +1,19 @@
 /* creates classes with different width */
 
-@mixin width($w){
+@mixin widthv($w){
     width: $w;
 }
 
 @for $i from 1 through 4 {
     .col-#{$i} {
         @if $i == 1 {
-            @include width(100%);
+            @include widthv(100%);
         } @else if $i == 2 {
-            @include width(50%);
+            @include widthv(50%);
         } @else if $i == 3 {
-            @include width(33.3333333333%);
+            @include widthv(33.3333333333%);
         } @else {
-            @include width(25%);
+            @include widthv(25%);
         }
     }
 }

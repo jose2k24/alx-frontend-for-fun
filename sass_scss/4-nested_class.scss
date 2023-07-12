@@ -1,10 +1,7 @@
-/* Nested class */
-$body-color: #3D3D3D;
-$red-color: #FF0000;
-
+/* using more nested declaration */
 body {
-    color: $body-color;
+    color: #3D3D3D;
     .red {
-        color: $red-color;
+        color: #FF0000;
     }
 }

@@ -1,18 +1,14 @@
-/* mixins */
-@mixin body-margin {
-    margin-left: 10px;
-    margin-right: 10px;
-}
+/* uses mixin */
 
-@mixin div-margin {
-    margin-left: 15px;
-    margin-right: 15px;
+@mixin marginLR($property) {
+    margin-left: $property;
+    margin-right: $property;
 }
 
 body {
-    @include body-margin;
+    @include marginLR(10px);
 }
 
 div {
-    @include div-margin;
+    @include marginLR(15px);
 }

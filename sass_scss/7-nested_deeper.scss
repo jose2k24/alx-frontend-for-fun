@@ -1,14 +1,11 @@
-/* Nested and nested again */
-$body-font-size: 14px;
-$h1-tags: 16px;
-$smaller-tags: 12px;
+/* uses nested declarations */
 
 body {
-    font-size: $body-font-size;
-    h1 {
-        font-size: $h1-tags;
-        &.smaller {
-            font-size: $smaller-tags;
-        }
+    font-size: 14px;
+   h1 {
+       font-size: 16px;
     }
+    h1.smaller {
+            font-size: 12px;
+        }
 }
