@@ -2,8 +2,6 @@
 
 """
 markdown2html.py - A script to convert a markdown file to HTML.
-
-Usage: markdown2html.py <input_file> <output_file>
 """
 
 import os.path
