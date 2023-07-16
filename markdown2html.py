@@ -6,52 +6,139 @@ markdown2html.py - A script to convert a markdown file to HTML.
 Usage: markdown2html.py <input_file> <output_file>
 """
 
+import os
 import sys
-import mistune
+import re
 
-
-def print_usage_and_exit():
-    """Print usage message to STDERR and exit with status 1."""
-
-    print("Usage: markdown2html.py <input_file> <output_file>", file=sys.stderr)
+if len(sys.argv) == 1:
     sys.exit(1)
 
+if not os.path.isfile(sys.argv[1]):
+    sys.exit(2)
 
-def print_missing_file_and_exit(filename):
-    """Print missing file error message to STDERR and exit with status 1."""
+ifile = sys.argv[1]
+ofile = re.sub('\.(md|markdown)$', '', ifile)+'.html'
 
-    print(f"Missing {filename}", file=sys.stderr)
-    sys.exit(1)
+ifile = open(ifile, 'r') ; ifile_str = ifile.read() + '\n '
+ofile = open(ofile, 'w') ; ofile_str = ''
+
+B = False
+I = False
+S = False
+c = False
+C = False
+Q = 0
+p = False
+i = 0
+
+while i < len(ifile_str)-2:
+    ch = ifile_str[i]
+    i += 1
+
+    if ch != '\n' and not p:
+        ofile.write('<p>')
+        p = True
+
+    if ch in ('*', '_'):
+        if C:
+            ofile.write(ch)
+            continue
+        if ifile_str[i] in ('*', '_'):
+            ofile.write(f'<{"/"*B}b>')
+            B = not B
+            i += 1
+        else:
+            ofile.write(f'<{"/"*I}i>')
+            I = not I
+
+    elif ch == '`':
+        ch_b, ch_c = ifile_str[i], ifile_str[i+1]
+        if ch == ch_b == ch_c:
+            ofile.write(f'<{"/"*C}code>')
+            C = not C
+            i += 2
+        else:
+            if C:
+                ofile.write(ch)
+                continue
+            ofile.write(f'<{"/"*c}code>')
+            c = not c
+
+    elif ch == '~':
+        if C:
+            ofile.write(ch)
+            continue
+        if ifile_str[i] == '~':
+            ofile.write(f'<{"/"*S}del>')
+            S = not S
+            i += 1
+
+    elif ch in ('-', '*', '_'):
+        ch_b , ch_c = ifile_str[i], ifile_str[i+1]
+        if ((i > 1 and ifile_str[i-2] == '\n') or i == 1) and ifile_str[i+2] == '\n':
+            if ch == ch_b == ch_c:
+                if B:
+                    ofile.write(f'</b>')
+                    B = False
+                if I:
+                    ofile.write(f'</i>')
+                    I = False
+                if S:
+                    ofile.write(f'</del>')
+                    S = False
+                ofile.write('<hr>')
+
+    elif ch == '[':
+        if re.match('^\[.*\]\(.*(".*"|)\)$', ifile_str[i-1:].split(')',1)[0]+')'):
+            name = ''
+            link = ''
+            alt = ''
+            s = ifile_str[i:].split(')',1)[0]+')'
+            i += len(s)
+            name = s.split(']')[0]
+            link = s.split('(')[1].split(')')[0]
+            if '"' in link:
+                alt = link.split('"')[1].split('"')[0]
+                link = link.split('"')[0].strip()
+        ofile.write(f'<a href="{link}" title="{alt}">{name}</a>')
 
 
-def main():
-    """Entry point of the script"""
+    elif ch == '\n':
+        if C:
+            ofile.write(ch)
+            continue
 
-    # check if correct number of arguments provided
-    if len(sys.argv) != 3:
-        print_usage_and_exit()
+        if c:
+            ofile.write(f'</code>')
 
-    # get input and output file names from command line arguments
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+        if not p:
+            ofile.write('<br>')
+        elif ifile_str[i] == '\n':
+            ofile.write('</p>\n')
+            p = False
+            i += 1
 
-    try:
-        # read input file
-        with open(input_file, "r") as f:
-            input_text = f.read()
-    except FileNotFoundError:
-        # input file not found, print error and exit with status 1
-        print_missing_file_and_exit(input_file)
+            if B:
+                ofile.write(f'</b>')
+                B = False
+            if I:
+                ofile.write(f'</i>')
+                I = False
+            if S:
+                ofile.write(f'</del>')
+                S = False
+        elif not ifile_str[i]:
+            if p:
+                ofile.write('</p>\n')
+            else:
+                ofile.write('\n')
+        else:
+            ofile.write('<br>')
 
-    # convert markdown to html
-    html_text = mistune.markdown(input_text)
+        ofile.write('\n')
 
-    # write html to output file
-    with open(output_file, "w") as f:
-        f.write(html_text)
-
-    # exit with status 0
-    sys.exit(0)
+    else:
+        ofile.write(ch)
 
 
 if __name__ == "__main__":
